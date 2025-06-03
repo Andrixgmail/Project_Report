@@ -4,6 +4,7 @@
 
 #pragma once
 #include "ProjectListCtrl.h"
+#include "sqlite3.h"
 
 // CProjectReportDlg dialog
 class CProjectReportDlg : public CDialogEx
@@ -44,4 +45,19 @@ public:
 	CButton btn_ADD;
 	CButton btn_LogOut;
 	afx_msg void OnBnClickedButtonLogout();
+	//int createDB(const char* s);
+	//int createTable(const char* s);
+	////static int insertData(const char* dbName, const char* id, const char* name, const char* type, const char* status)
+	//int insertData(const char* s, const char* i, const char* n, const char* t, const char* st);
+
+protected:
+	sqlite3* m_db; // Database connection
+
+	BOOL OpenDatabase();
+	void CloseDatabase();
+	BOOL CreateProjectTable();
+	BOOL InsertProject(const CString& id, const CString& name, const CString& type, const CString& status);
+
+	void OnDestroy();
+
 };

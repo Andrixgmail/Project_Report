@@ -31,6 +31,8 @@ CProjectReportApp::CProjectReportApp()
 }
 
 
+
+
 // The one and only CProjectReportApp object
 
 CProjectReportApp theApp;
@@ -70,6 +72,7 @@ BOOL CProjectReportApp::InitInstance()
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+
 
 	CProjectReportDlg dlg;
 	m_pMainWnd = &dlg;

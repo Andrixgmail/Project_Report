@@ -8,6 +8,9 @@
 #include "ProjectReportDlg.h"
 #include "afxdialogex.h"
 #include "logIN_Page.h"
+#include "afxdialogex.h"
+#include "sqlite3.h"
+#include "string"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -128,7 +131,8 @@ BOOL CProjectReportDlg::OnInitDialog()
 	m_crtProjectList.AddProject(_T("P002"), _T("Project 2"), _T("Type 2"), _T("Status 2"), 1);
 	m_crtProjectList.AddProject(_T("P003"), _T("Project 3"), _T("Type 3"), _T("Status 3"), 2);
 	m_crtProjectList.AddProject(_T("P004"), _T("Project 4"), _T("Type 4"), _T("Status 4"), 3);*/
-
+	OpenDatabase();
+	CreateProjectTable();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -196,7 +200,6 @@ void CProjectReportDlg::OnEnChangeEdit1()
 
 void CProjectReportDlg::OnBnClickedButtonAdd()
 {
-	// TODO: Add your control notification handler code here
 	UpdateData(TRUE);
 	if (m_ID.IsEmpty() || m_Name.IsEmpty() || m_Type.IsEmpty() || m_Status.IsEmpty())
 	{
@@ -204,13 +207,18 @@ void CProjectReportDlg::OnBnClickedButtonAdd()
 		return;
 	}
 	m_crtProjectList.AddProject(m_ID, m_Name, m_Type, m_Status, 0);
+	if (!InsertProject(m_ID, m_Name, m_Type, m_Status)) // Insert the project into the database
+	{
+		AfxMessageBox(_T("Failed to insert project into database"));
+		return;
+	}
+
 	m_ID = _T("");
 	m_Name = _T("");
 	m_Type = _T("");
 	m_Status = _T("");
 	UpdateData(FALSE);
 }
-
 
 void CProjectReportDlg::OnBnClickedButtonLogin()
 {
@@ -230,8 +238,6 @@ void CProjectReportDlg::OnBnClickedButtonLogin()
 		MessageBox(_T("Invalid Password"), _T("Error"), MB_ICONERROR);
 	}
 }
-
-
 void CProjectReportDlg::OnBnClickedButtonLogout()
 {
 	// TODO: Add your control notification handler code here
@@ -240,3 +246,79 @@ void CProjectReportDlg::OnBnClickedButtonLogout()
 	btn_ADD.EnableWindow(FALSE);
 	btn_LogOut.EnableWindow(FALSE);
 }
+
+// Implement the database opening function
+BOOL CProjectReportDlg::OpenDatabase()
+{
+	//sqlite3* m_db;
+	int rc = sqlite3_open("ProjectReport.db", &m_db);
+
+	if (rc == SQLITE_OK)
+	{
+		CString strMessage;
+		strMessage=L"Database opened successfully:";
+		AfxMessageBox(strMessage);
+	}
+	else
+	{
+		CString strError;
+		strError.Format(_T("Failed to open database: %s"), std::string(sqlite3_errmsg(m_db)).c_str());
+		AfxMessageBox(strError);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+// Implement the database closing function
+void CProjectReportDlg::CloseDatabase()
+{
+}
+
+// Implement the table creation function
+BOOL CProjectReportDlg::CreateProjectTable()
+{
+	const char* sql = "CREATE TABLE IF NOT EXISTS Projects ("
+		"ID TEXT PRIMARY KEY, "
+		"Name TEXT NOT NULL, "
+		"Type TEXT NOT NULL, "
+		"Status TEXT NOT NULL);";
+
+	char* errMsg = nullptr;
+	int rc = sqlite3_exec(m_db, sql, nullptr, nullptr, &errMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		CString strError;
+		strError.Format(_T("Failed to create table: %s"), errMsg);
+		sqlite3_free(errMsg);
+		AfxMessageBox(strError);
+		return FALSE;
+	}
+	return TRUE;
+}
+// Implement the project insertion function
+BOOL CProjectReportDlg::InsertProject(const CString& id, const CString& name, const CString& type, const CString& status)
+{
+	CString sql;
+	sql.Format(_T("INSERT INTO Projects (ID, Name, Type, Status) VALUES ('%s', '%s', '%s', '%s');"), id, name, type, status);
+
+	char* errMsg = nullptr;
+	int rc = sqlite3_exec(m_db, CT2A(sql), nullptr, nullptr, &errMsg);
+
+	if (rc != SQLITE_OK)
+	{
+		CString strError;
+		strError.Format(_T("Failed to insert project: %s"), errMsg);
+		sqlite3_free(errMsg);
+		AfxMessageBox(strError);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+// Override the OnDestroy handler to close the database when the dialog closes
+void CProjectReportDlg::OnDestroy()
+{
+	
+}
+

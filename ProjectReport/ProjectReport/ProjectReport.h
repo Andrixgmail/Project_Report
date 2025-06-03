@@ -11,6 +11,7 @@
 #include "resource.h"		// main symbols
 
 
+
 // CProjectReportApp:
 // See ProjectReport.cpp for the implementation of this class
 //
@@ -24,7 +25,7 @@ public:
 public:
 	virtual BOOL InitInstance();
 
-// Implementation
+	// Implementation
 
 	DECLARE_MESSAGE_MAP()
 };
