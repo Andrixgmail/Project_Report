@@ -53,6 +53,7 @@ public:
 
 protected:
 	sqlite3* m_db; // Database connection
+	int m_count = 0; // Counter for the number of projects
 
 	BOOL OpenDatabase();
 	void CloseDatabase();

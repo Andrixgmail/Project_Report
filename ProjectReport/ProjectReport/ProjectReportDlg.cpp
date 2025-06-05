@@ -213,8 +213,10 @@ void CProjectReportDlg::OnBnClickedButtonAdd()
 		AfxMessageBox(_T("Failed to insert project into database"));
 		return;
 	}
-
-	m_ID = _T("");
+	m_count++; // Increment the project count
+	char temp[64] = { ' ' };
+	_itoa_s(m_count, temp, 64, 10); // Convert count to string for display
+	m_ID = CString(temp);
 	m_Name = _T("");
 	m_Type = _T("");
 	m_Status = _T("");
@@ -344,7 +346,12 @@ BOOL CProjectReportDlg::LoadProjectsFromDatabase()
 		CString status = CA2T(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
 
 		m_crtProjectList.AddProject(id, name, type, status, row++);
+		//m_ID._ttoi(id) + 1; // Increment ID for the next entry
 	}
+	m_count = row + 1; // Update the project count
+	char temp[64] = { ' ' };
+	_itoa_s(m_count, temp, 64, 10); // Convert count to string for display
+	GetDlgItem(IDC_EDIT_ID)->SetWindowTextW(CString(temp)); // Set the ID field to the next available ID
 
 	if (rc != SQLITE_DONE)
 	{
