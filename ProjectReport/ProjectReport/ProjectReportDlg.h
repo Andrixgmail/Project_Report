@@ -6,6 +6,7 @@
 #include "ProjectListCtrl.h"
 #include "sqlite3.h"
 
+
 // CProjectReportDlg dialog
 class CProjectReportDlg : public CDialogEx
 {
@@ -57,7 +58,8 @@ protected:
 	void CloseDatabase();
 	BOOL CreateProjectTable();
 	BOOL InsertProject(const CString& id, const CString& name, const CString& type, const CString& status);
-
+	enum { IDD = IDC_LIST_Project };
+	BOOL LoadProjectsFromDatabase();
 	void OnDestroy();
 
 };

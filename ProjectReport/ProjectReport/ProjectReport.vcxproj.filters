@@ -33,10 +33,10 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectListCtrl.h">
+    <ClInclude Include="LogIN_Page.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LogIN_Page.h">
+    <ClInclude Include="ProjectListCtrl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectListCtrl.cpp">
+    <ClCompile Include="LogIN_Page.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LogIN_Page.cpp">
+    <ClCompile Include="ProjectListCtrl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

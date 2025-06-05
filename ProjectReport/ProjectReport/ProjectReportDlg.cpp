@@ -133,6 +133,7 @@ BOOL CProjectReportDlg::OnInitDialog()
 	m_crtProjectList.AddProject(_T("P004"), _T("Project 4"), _T("Type 4"), _T("Status 4"), 3);*/
 	OpenDatabase();
 	CreateProjectTable();
+	//LoadProjectsFromDatabase(); // Load projects from the database into the list control
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -232,6 +233,7 @@ void CProjectReportDlg::OnBnClickedButtonLogin()
 		m_crtProjectList.EnableWindow(TRUE);
 		btn_ADD.EnableWindow(TRUE);
 		m_crtProjectList.Init();
+		LoadProjectsFromDatabase(); // Load projects from the database into the list control
 	}
 	else
 	{
@@ -245,6 +247,7 @@ void CProjectReportDlg::OnBnClickedButtonLogout()
 	m_crtProjectList.EnableWindow(FALSE);
 	btn_ADD.EnableWindow(FALSE);
 	btn_LogOut.EnableWindow(FALSE);
+	m_crtProjectList.DeleteAllItems(); // Clear the list control
 }
 
 // Implement the database opening function
@@ -314,6 +317,43 @@ BOOL CProjectReportDlg::InsertProject(const CString& id, const CString& name, co
 		return FALSE;
 	}
 	return TRUE;
+}
+
+BOOL CProjectReportDlg::LoadProjectsFromDatabase()
+{
+	CString sql = _T("SELECT ID, Name, Type, Status FROM Projects;");
+	sqlite3_stmt* stmt = nullptr; // Statement object
+
+	int rc = sqlite3_prepare_v2(m_db, CT2A(sql), -1, &stmt, nullptr);
+	if (rc != SQLITE_OK)
+	{
+		CString strError;
+		strError.Format(_T("Failed to prepare statement: %s"), sqlite3_errmsg(m_db));
+		AfxMessageBox(strError);
+		return FALSE;
+	}
+
+	m_crtProjectList.DeleteAllItems(); // Clear the list control before loading new data
+	int row = 0;
+
+	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) // Iterate through the result set
+	{
+		CString id = CA2T(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))); // Get ID as CString
+		CString name = CA2T(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));	
+		CString type = CA2T(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+		CString status = CA2T(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+
+		m_crtProjectList.AddProject(id, name, type, status, row++);
+	}
+
+	if (rc != SQLITE_DONE)
+	{
+		CString strError;
+		strError.Format(_T("Failed to step through results: %s"), sqlite3_errmsg(m_db));
+		AfxMessageBox(strError);
+		//sqlite3_finalize(stmt);
+		return FALSE;
+	}
 }
 
 // Override the OnDestroy handler to close the database when the dialog closes
